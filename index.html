@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sine Law: Simulator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-text: #2D3748; 
+            --secondary-text: #4A5568;
+            --accent-blue: #3182CE;
+            --accent-orange: #DD6B20; 
+            --accent-green: #38A169;
+            --accent-red: #E53E3E;
+            
+            --glass-bg: rgba(255, 255, 255, 0.85); 
+            --glass-border: rgba(255, 255, 255, 0.5);
+            --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+        }
+
+        body { 
+            font-family: 'Prompt', sans-serif; 
+            background-color: #0093E9;
+            background-image: linear-gradient(135deg, #0093E9 0%, #80D0C7 100%);
+            color: var(--primary-text); 
+            margin: 0; 
+            padding: 20px 10px; /* ลด padding บนมือถือ */
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container { 
+            background: var(--glass-bg); 
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            width: 100%;
+            max-width: 900px; 
+            padding: 30px 20px; /* ปรับให้ขอบบางลงบนมือถือ */
+            border-radius: 20px; 
+            box-shadow: var(--glass-shadow);
+            border: 1px solid var(--glass-border);
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        h1 { 
+            text-align: center;
+            font-weight: 700;
+            font-size: 28px;
+            margin-top: 0;
+            background: linear-gradient(to right, #2B6CB0, #319795);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 0.5px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--secondary-text);
+            margin-bottom: 20px;
+            font-size: 15px;
+            font-weight: 400;
+        }
+
+        /* ปรับ Canvas ให้ยืดหยุ่นตามหน้าจอ */
+        canvas { 
+            background: #F7FAFC; 
+            border-radius: 12px; 
+            border: 2px solid #E2E8F0;
+            margin: 0 auto 20px auto;
+            display: block;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            max-width: 100%; /* สำคัญมาก: ทำให้ไม่ล้นจอมือถือ */
+            height: auto;    /* รักษาสัดส่วน */
+        }
+
+        button { 
+            background: linear-gradient(135deg, #4299E1 0%, #3182CE 100%);
+            color: white; 
+            border: none; 
+            padding: 12px 20px; 
+            font-size: 14px; 
+            font-family: 'Prompt', sans-serif;
+            font-weight: 600; 
+            border-radius: 10px; 
+            cursor: pointer; 
+            transition: all 0.3s ease; 
+            box-shadow: 0 4px 15px rgba(49, 130, 206, 0.3);
+            flex: 1 1 auto; /* ให้ปุ่มขยายตัวตามพื้นที่ */
+            min-width: 140px;
+        }
+
+        button:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(49, 130, 206, 0.4);
+        }
+
+        .btn-green { background: linear-gradient(135deg, #48BB78 0%, #38A169 100%); box-shadow: 0 4px 15px rgba(56, 161, 105, 0.3); }
+        .btn-green:hover { box-shadow: 0 6px 20px rgba(56, 161, 105, 0.4); }
+        
+        .btn-orange { background: linear-gradient(135deg, #ED8936 0%, #DD6B20 100%); box-shadow: 0 4px 15px rgba(221, 107, 32, 0.3); }
+        .btn-orange:hover { box-shadow: 0 6px 20px rgba(221, 107, 32, 0.4); }
+        
+        .btn-purple { background: linear-gradient(135deg, #9F7AEA 0%, #6B46C1 100%); box-shadow: 0 4px 15px rgba(107, 70, 193, 0.3); }
+        .btn-purple:hover { box-shadow: 0 6px 20px rgba(107, 70, 193, 0.4); }
+
+        .hidden { display: none !important; }
+        
+        .control-panel { 
+            background: rgba(237, 242, 247, 0.6); 
+            padding: 20px; 
+            border-radius: 16px; 
+            text-align: center; 
+            margin-bottom: 20px; 
+            border: 1px solid #E2E8F0; 
+        }
+        
+        input[type="range"] { 
+            width: 100%; /* ขยายหลอดเลื่อนให้ทัชง่ายขึ้นบนมือถือ */
+            max-width: 400px;
+            cursor: pointer; 
+            accent-color: var(--accent-orange); 
+            height: 8px; /* เพิ่มความหนาให้ทัชง่าย */
+        }
+        
+        .action-buttons { 
+            display: flex; 
+            justify-content: center; 
+            gap: 10px; 
+            flex-wrap: wrap; 
+            margin-bottom: 15px; 
+        }
+
+        /* Responsive adjustments สำหรับจอเล็กสุดๆ */
+        @media (max-width: 480px) {
+            h1 { font-size: 24px; }
+            button { width: 100%; } /* ปุ่มเรียงแถวแนวตั้งบนมือถือจอเล็ก */
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>SINE LAW: SIMULATOR</h1>
+    
+    <div id="simPhase">
+        <p class="subtitle">ระบบจำลองความสัมพันธ์ของมุมและด้านตรงข้าม (กฎของไซน์)</p>
+        <canvas id="simCanvas" width="800" height="420"></canvas>
+        <div class="control-panel">
+            <label style="color: var(--primary-text); font-size: 15px; font-weight: 500;">
+                หมุนปรับองศามุมยอด B: <span id="angleValue" style="color:var(--accent-orange); font-size:22px; font-weight: 700;">65.5</span>°
+            </label><br><br>
+            <input type="range" id="angleSlider" min="20" max="100" value="65.5" step="0.5" oninput="updateSimulation()">
+        </div>
+        
+        <div class="action-buttons">
+            <button class="btn-blue" onclick="setProofMode(1)">🔍 พิสูจน์คู่ A-C</button>
+            <button class="btn-orange" onclick="setProofMode(2)">🔍 พิสูจน์คู่ A-B</button>
+            <button class="btn-purple" onclick="setProofMode(3)">📝 สรุปกฎของไซน์</button>
+        </div>
+        
+        <div id="nextStepContainer" class="hidden" style="text-align: center; margin-bottom: 10px;">
+            <button class="btn-green" onclick="nextProofStep()" style="padding: 10px 30px; font-size: 16px; border-radius: 50px; box-shadow: 0 4px 10px rgba(56,161,105,0.4);">
+                ➡️ คลิกดูขั้นตอนต่อไป
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const simCnv = document.getElementById('simCanvas');
+    const simCtx = simCnv.getContext('2d');
+    
+    // ตั้งค่าคงที่ของมุม A ให้เป็น 72 องศา
+    const PHASE1_ANGLE_A = 72;
+    let simAngleB = 65.5; 
+    let currentProofMode = 0; 
+    let currentProofStep = 0; 
+
+    function setProofMode(mode) {
+        currentProofMode = mode;
+        currentProofStep = 1; 
+        document.getElementById('nextStepContainer').classList.remove('hidden');
+        let maxSteps = (mode === 3) ? 4 : 5;
+        if(currentProofStep >= maxSteps) {
+           document.getElementById('nextStepContainer').classList.add('hidden');
+        }
+        drawSimulation();
+        // เลื่อนหน้าจอลงมาที่ปุ่ม "คลิกดูขั้นตอนต่อไป" อัตโนมัติเวลาทัชบนมือถือ
+        document.getElementById('nextStepContainer').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function nextProofStep() {
+        currentProofStep++;
+        let maxSteps = (currentProofMode === 3) ? 4 : 5;
+        if (currentProofStep >= maxSteps) {
+            document.getElementById('nextStepContainer').classList.add('hidden'); 
+        }
+        drawSimulation();
+    }
+
+    function drawSimulation() {
+        simCtx.clearRect(0, 0, simCnv.width, simCnv.height);
+        
+        let A_deg = PHASE1_ANGLE_A;
+        let B_deg = simAngleB;
+        let C_deg = 180 - A_deg - B_deg;
+
+        // คำนวณความยาวด้านตามรูป (a = 8.3, c = 5.9)
+        let ratio = 8.3 / Math.sin(A_deg * Math.PI / 180);
+        let a_val = ratio * Math.sin(A_deg * Math.PI / 180); 
+        let b_val = ratio * Math.sin(B_deg * Math.PI / 180);
+        let c_val = ratio * Math.sin(C_deg * Math.PI / 180); 
+
+        let scale = 30;
+        let A_x = 180, A_y = 320;
+        let C_x = A_x + (b_val * scale);
+        let C_y = A_y;
+        
+        let B_x = A_x + (c_val * scale) * Math.cos(A_deg * Math.PI / 180);
+        let B_y = A_y - (c_val * scale) * Math.sin(A_deg * Math.PI / 180);
+
+        let gradient = simCtx.createLinearGradient(B_x, B_y, B_x, A_y);
+        gradient.addColorStop(0, "rgba(237, 137, 54, 0.4)"); 
+        gradient.addColorStop(1, "rgba(251, 211, 141, 0.05)"); 
+        simCtx.beginPath(); simCtx.moveTo(B_x, B_y); simCtx.lineTo(A_x, A_y); simCtx.lineTo(C_x, C_y);
+        simCtx.closePath(); simCtx.fillStyle = gradient; simCtx.fill();
+
+        simCtx.lineWidth = 2; simCtx.strokeStyle = '#A0AEC0'; 
+        simCtx.beginPath(); simCtx.moveTo(A_x, A_y); simCtx.lineTo(B_x, B_y); simCtx.lineTo(C_x, C_y); simCtx.closePath(); simCtx.stroke();
+        
+        simCtx.lineWidth = 4; simCtx.strokeStyle = '#3182CE';
+        simCtx.beginPath(); simCtx.moveTo(A_x, A_y); simCtx.lineTo(C_x, C_y); simCtx.stroke();
+
+        simCtx.font = "600 20px Prompt";
+        simCtx.fillStyle = "#DD6B20"; simCtx.fillText("B", B_x - 15, B_y - 15);
+        simCtx.font = "600 16px Prompt"; simCtx.fillText(`${B_deg.toFixed(1)}°`, B_x - 15, B_y + 25);
+        
+        simCtx.fillStyle = "#38A169"; simCtx.font = "600 20px Prompt"; simCtx.fillText("A", A_x - 25, A_y + 10);
+        simCtx.font = "14px Prompt"; 
+        simCtx.fillText(`${A_deg.toFixed(1)}°`, A_x + 15, A_y - 8);
+        
+        simCtx.fillStyle = "#E53E3E"; simCtx.font = "600 20px Prompt"; simCtx.fillText("C", C_x + 15, C_y + 10);
+        simCtx.font = "14px Prompt"; simCtx.fillText(`${C_deg.toFixed(1)}°`, C_x - 35, C_y - 8);
+
+        simCtx.font = "600 14px Prompt";
+        let a_label_x = B_x > C_x ? B_x + 15 : (B_x + C_x)/2 + 10;
+        simCtx.fillStyle = "#E53E3E"; simCtx.fillText(`a = ${a_val.toFixed(2)}`, a_label_x, (B_y + C_y)/2);
+        simCtx.fillStyle = "#38A169"; simCtx.fillText(`c = ${c_val.toFixed(2)}`, (A_x + B_x)/2 - 70, (A_y + B_y)/2);
+        simCtx.fillStyle = "#3182CE"; simCtx.font = "600 16px Prompt"; simCtx.fillText(`b = ${b_val.toFixed(2)}`, (A_x + C_x)/2 - 30, A_y + 25);
+
+        if (currentProofMode === 1) {
+            simCtx.fillStyle = "rgba(255, 255, 255, 0.95)";
+            simCtx.roundRect(470, 15, 315, 190, 12); simCtx.fill(); simCtx.stroke();
+            simCtx.fillStyle = "#DD6B20"; simCtx.font = "600 15px Prompt"; simCtx.fillText("💡 การพิสูจน์ (คู่ A และ C)", 490, 40);
+            
+            if (currentProofStep >= 1) {
+                simCtx.beginPath(); simCtx.setLineDash([5, 5]); simCtx.moveTo(B_x, B_y); simCtx.lineTo(B_x, A_y);
+                simCtx.strokeStyle = '#A0AEC0'; simCtx.lineWidth = 1.5; simCtx.stroke(); simCtx.setLineDash([]);
+                if (B_x > C_x) {
+                    simCtx.beginPath(); simCtx.setLineDash([3, 3]); simCtx.moveTo(C_x, C_y); simCtx.lineTo(B_x, A_y);
+                    simCtx.strokeStyle = '#CBD5E0'; simCtx.lineWidth = 1.5; simCtx.stroke(); simCtx.setLineDash([]);
+                }
+                simCtx.fillStyle = '#718096'; simCtx.font = "italic 16px serif"; simCtx.fillText("h₁", B_x - 22, (B_y + A_y)/2);
+                simCtx.fillStyle = "#4A5568"; simCtx.font = "13px Prompt"; simCtx.fillText("ลากเส้น h₁ จากมุม B ไปตั้งฉากกับด้าน b", 490, 65);
+            }
+            if (currentProofStep >= 2) { simCtx.fillStyle = "#38A169"; simCtx.fillText("ซ้าย: sin(A) = h₁ / c  ➔  h₁ = c·sin(A)", 490, 95); }
+            if (currentProofStep >= 3) { simCtx.fillStyle = "#E53E3E"; simCtx.fillText("ขวา: sin(C) = h₁ / a  ➔  h₁ = a·sin(C)", 490, 125); }
+            if (currentProofStep >= 4) { simCtx.fillStyle = "#2D3748"; simCtx.fillText("จับ h₁ เท่ากัน:  c·sin(A) = a·sin(C)", 490, 155); }
+            if (currentProofStep >= 5) { simCtx.fillStyle = "#3182CE"; simCtx.font = "600 16px Prompt"; simCtx.fillText("∴ sin(A)/a = sin(C)/c", 550, 185); }
+        } 
+        else if (currentProofMode === 2) {
+            simCtx.fillStyle = "rgba(255, 255, 255, 0.95)";
+            simCtx.roundRect(470, 15, 315, 190, 12); simCtx.fill(); simCtx.stroke();
+            simCtx.fillStyle = "#DD6B20"; simCtx.font = "600 15px Prompt"; simCtx.fillText("💡 การพิสูจน์ (คู่ A และ B)", 490, 40);
+            
+            if (currentProofStep >= 1) {
+                let v_x = B_x - A_x, v_y = B_y - A_y;
+                let L2 = v_x*v_x + v_y*v_y;
+                let t = ((C_x - A_x)*v_x + (C_y - A_y)*v_y) / L2;
+                let P_x = A_x + t * v_x, P_y = A_y + t * v_y;
+                
+                simCtx.beginPath(); simCtx.setLineDash([5, 5]); simCtx.moveTo(C_x, C_y); simCtx.lineTo(P_x, P_y);
+                simCtx.strokeStyle = '#A0AEC0'; simCtx.lineWidth = 1.5; simCtx.stroke(); simCtx.setLineDash([]);
+                
+                if (t > 1) {
+                    simCtx.beginPath(); simCtx.setLineDash([3, 3]); simCtx.moveTo(B_x, B_y); simCtx.lineTo(P_x, P_y);
+                    simCtx.strokeStyle = '#CBD5E0'; simCtx.lineWidth = 1.5; simCtx.stroke(); simCtx.setLineDash([]);
+                } else if (t < 0) {
+                    simCtx.beginPath(); simCtx.setLineDash([3, 3]); simCtx.moveTo(A_x, A_y); simCtx.lineTo(P_x, P_y);
+                    simCtx.strokeStyle = '#CBD5E0'; simCtx.lineWidth = 1.5; simCtx.stroke(); simCtx.setLineDash([]);
+                }
+                simCtx.fillStyle = '#718096'; simCtx.font = "italic 16px serif"; simCtx.fillText("h₂", (C_x + P_x)/2 + 5, (C_y + P_y)/2 - 5);
+                simCtx.fillStyle = "#4A5568"; simCtx.font = "13px Prompt"; simCtx.fillText("ลากเส้น h₂ จากมุม C ไปตั้งฉากกับด้าน c", 490, 65);
+            }
+            if (currentProofStep >= 2) { simCtx.fillStyle = "#DD6B20"; simCtx.fillText("บน: sin(B) = h₂ / a  ➔  h₂ = a·sin(B)", 490, 95); }
+            if (currentProofStep >= 3) { simCtx.fillStyle = "#38A169"; simCtx.fillText("ล่าง: sin(A) = h₂ / b  ➔  h₂ = b·sin(A)", 490, 125); }
+            if (currentProofStep >= 4) { simCtx.fillStyle = "#2D3748"; simCtx.fillText("จับ h₂ เท่ากัน:  a·sin(B) = b·sin(A)", 490, 155); }
+            if (currentProofStep >= 5) { simCtx.fillStyle = "#3182CE"; simCtx.font = "600 16px Prompt"; simCtx.fillText("∴ sin(A)/a = sin(B)/b", 550, 185); }
+        }
+        else if (currentProofMode === 3) {
+            simCtx.fillStyle = "rgba(255, 255, 255, 0.95)";
+            simCtx.roundRect(470, 15, 315, 190, 12); simCtx.fill(); simCtx.stroke();
+            simCtx.fillStyle = "#DD6B20"; simCtx.font = "600 16px Prompt"; simCtx.fillText("📝 สรุปกฎของไซน์ (Sine Law)", 490, 45);
+            
+            if (currentProofStep >= 1) {
+                simCtx.fillStyle = "#4A5568"; simCtx.font = "14px Prompt"; 
+                simCtx.fillText("จากทั้ง 2 การพิสูจน์ เราได้ความสัมพันธ์:", 490, 75);
+                simCtx.fillStyle = "#3182CE"; simCtx.font = "600 14px Prompt"; 
+                simCtx.fillText("① sin(A)/a = sin(C)/c", 510, 100);
+            }
+            if (currentProofStep >= 2) { 
+                simCtx.fillStyle = "#3182CE"; simCtx.font = "600 14px Prompt"; 
+                simCtx.fillText("② sin(A)/a = sin(B)/b", 510, 125); 
+            }
+            if (currentProofStep >= 3) {
+                simCtx.fillStyle = "#2D3748"; simCtx.font = "600 15px Prompt"; 
+                simCtx.fillText("ดังนั้น อัตราส่วนทั้งหมดจึงเท่ากันเสมอ!", 490, 160);
+            }
+            if (currentProofStep >= 4) {
+                simCtx.fillStyle = "#E53E3E"; simCtx.font = "600 18px Prompt"; 
+                simCtx.fillText("sin(A)/a = sin(B)/b = sin(C)/c", 495, 185);
+            }
+        }
+
+        CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
+            if (w < 2 * r) r = w / 2; if (h < 2 * r) r = h / 2;
+            this.beginPath(); this.moveTo(x + r, y); this.arcTo(x + w, y, x + w, y + h, r);
+            this.arcTo(x + w, y + h, x, y + h, r); this.arcTo(x, y + h, x, y, r); this.arcTo(x, y, x + w, y, r);
+            this.closePath(); return this;
+        }
+    }
+
+    function updateSimulation() {
+        simAngleB = parseFloat(document.getElementById('angleSlider').value);
+        document.getElementById('angleValue').innerText = simAngleB;
+        drawSimulation();
+    }
+    
+    // โหลดครั้งแรก
+    window.onload = function() {
+        drawSimulation();
+    };
+
+</script>
+</body>
+</html>
